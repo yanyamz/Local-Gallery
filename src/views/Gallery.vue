@@ -1,9 +1,12 @@
 <script setup>
 import { onMounted, ref } from '@vue/runtime-core'
+import useAuth from '@/composables/auth.js'
 
 const images = ref([])
 const jsonServer = 'http://localhost:5000/images'
 const server = 'http://localhost:3000'
+
+const { isAuth, signOut } = useAuth()
 
 onMounted(() => {
 	getImages()
@@ -24,31 +27,14 @@ const fetchImages = async () => {
 // Add images to server
 const fileUploader = ref(null)
 
-const isValidExtension = (extension) => {
-	switch (extension) {
-		case 'jpg':
-		case 'png':
-		case 'jpeg':
-			return true
-	}
-	return false
-}
-
 const uploadImages = async () => {
 	const files = fileUploader.value.files
 	let fileNames = []
 	for (const key in files) {
 		fileNames.push(files[key]?.name)
 	}
+
 	fileNames = fileNames.slice(0, fileNames.length - 2)
-
-	fileNames.forEach((fileName) => {
-		const [, , extension] = fileName.match(/(\.)(\w+)/)
-		if (!isValidExtension(extension)) {
-			return
-		}
-	})
-
 	// For each filename, input them into the DB
 	for (let i = 0; i < fileNames.length; i++) {
 		try {
@@ -86,9 +72,9 @@ const uploadImages = async () => {
 </script>
 
 <template>
-	<div class="container">
-		<router-view></router-view>
-		<h1>Gallery</h1>
+	<div v-if="isAuth" class="container">
+		<button @click="signOut" class="block button is-danger">Logout</button>
+		<h1 class="title">Gallery</h1>
 		<form
 			@submit.prevent="uploadImages"
 			action="/"
@@ -108,7 +94,7 @@ const uploadImages = async () => {
 			<div
 				v-for="image in images"
 				:key="image.id"
-				class="gallery__img-container"
+				class="gallery__img-container is-clickable"
 			>
 				<img :src="`../../uploads/${image.name}`" alt="image" />
 			</div>
@@ -122,6 +108,7 @@ const uploadImages = async () => {
 	margin: 0 auto;
 	padding: 30px;
 }
+
 .gallery {
 	padding-top: 20px;
 	display: grid;
