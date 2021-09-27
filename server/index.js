@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html')
 })
 
+app.get('/gallery', (req, res) => {
+	res.sendFile(path.join(__dirname, '../dist/index.html'))
+})
+
 app.post('/', upload.array('multi-files'), (req, res) => {
 	res.redirect('/')
 })
