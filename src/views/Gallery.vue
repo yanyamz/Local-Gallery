@@ -3,6 +3,7 @@ import { onMounted, ref } from '@vue/runtime-core'
 import useAuth from '@/composables/auth.js'
 
 const images = ref([])
+const galleryMode = ref(false)
 const jsonServer = 'http://localhost:5000/images'
 const server = 'http://localhost:3000'
 
@@ -73,7 +74,14 @@ const uploadImages = async () => {
 
 <template>
 	<div v-if="isAuth" class="container">
-		<button @click="signOut" class="block button is-danger">Logout</button>
+		<div class="top">
+			<button @click="signOut" class="block button is-danger">Logout</button>
+			<div class="box">
+				<label for="checkbox">Gallery Mode</label>
+				<input v-model="galleryMode" name="checkbox" type="checkbox" />
+			</div>
+		</div>
+
 		<h1 class="title">Gallery</h1>
 		<form
 			@submit.prevent="uploadImages"
@@ -90,14 +98,18 @@ const uploadImages = async () => {
 			/>
 			<input type="submit" value="Upload" />
 		</form>
-		<div class="gallery">
-			<div
+		<div v-if="!galleryMode" class="gallery">
+			<a
+				:href="`../../uploads/${image.name}`"
 				v-for="image in images"
 				:key="image.id"
 				class="gallery__img-container is-clickable"
 			>
 				<img :src="`../../uploads/${image.name}`" alt="image" />
-			</div>
+			</a>
+		</div>
+		<div v-else class="gallery2">
+			<div class="gallery2__top"></div>
 		</div>
 	</div>
 </template>
@@ -107,6 +119,17 @@ const uploadImages = async () => {
 	max-width: 1440px;
 	margin: 0 auto;
 	padding: 30px;
+}
+
+.top {
+	display: flex;
+	justify-content: space-between;
+}
+
+.box {
+	* {
+		padding: 0 1rem;
+	}
 }
 
 .gallery {
